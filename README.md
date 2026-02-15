@@ -19,3 +19,19 @@ The **factory firmware** comes with rich features, including vivid and cute faci
 - **StackChan World iOS app**: https://apps.apple.com/app/stackchan-world/id6756086326
 
 - **StackChan World website**: https://stackchan.world/home
+
+## Development
+
+### Local Development with Emulator
+
+Want to develop and test StackChan UI changes without constantly flashing firmware to your device? Use the M5Stack LVGL Emulator for rapid local development.
+
+See the [Emulator Setup Guide](docs/EMULATOR_SETUP.md) for detailed instructions on setting up the emulator on your PC.
+
+Quick start:
+```bash
+# Run the automated setup script
+./scripts/setup_emulator.sh  # Linux/macOS
+# or
+scripts\setup_emulator.bat   # Windows
+```
