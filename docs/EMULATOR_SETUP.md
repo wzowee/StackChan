@@ -12,8 +12,11 @@ The [lv_m5_emulator](https://github.com/m5stack/lv_m5_emulator) enables you to r
 
 - **Visual Studio Code** - Download from [code.visualstudio.com](https://code.visualstudio.com/)
 - **PlatformIO Extension** - Install from VS Code Extensions marketplace
+- **Python 3.8+** - PlatformIO requires Python (usually auto-installed with PlatformIO)
 - **SDL2** - Graphics library for rendering (installation instructions below)
 - **Git** - For cloning the emulator repository
+
+**Note:** PlatformIO manages its own Python environment internally, so you don't need to set up a separate virtual environment for the emulator (unlike ESP-IDF firmware development which benefits from a virtual environment).
 
 ### System-Specific Dependencies
 

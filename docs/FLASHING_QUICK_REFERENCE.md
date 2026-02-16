@@ -4,6 +4,8 @@ Quick reference for flashing StackChan firmware to CoreS3/CoreS3 SE.
 
 ## Prerequisites
 
+- [ ] Python 3.8+ installed
+- [ ] Python virtual environment created and activated
 - [ ] ESP-IDF v5.5.1 installed
 - [ ] CoreS3/CoreS3 SE connected via USB-C
 - [ ] USB drivers installed
@@ -13,18 +15,57 @@ Quick reference for flashing StackChan firmware to CoreS3/CoreS3 SE.
 
 ### First Time Setup
 
+#### 1. Create Python Virtual Environment (Recommended)
+
 ```bash
-# Install ESP-IDF (Linux/macOS)
+# Linux/macOS
+mkdir -p ~/stackchan-dev
+cd ~/stackchan-dev
+python3 -m venv venv
+source venv/bin/activate
+
+# Windows
+mkdir %USERPROFILE%\stackchan-dev
+cd %USERPROFILE%\stackchan-dev
+python -m venv venv
+venv\Scripts\activate
+```
+
+Add to `~/.bashrc` or `~/.zshrc` for easy access:
+```bash
+alias stackchan-env='source ~/stackchan-dev/venv/bin/activate'
+```
+
+#### 2. Install ESP-IDF
+
+```bash
+# Linux/macOS (with venv active!)
 mkdir -p ~/esp && cd ~/esp
 git clone -b v5.5.1 --recursive https://github.com/espressif/esp-idf.git
 cd esp-idf
 ./install.sh esp32s3
 
-# Activate ESP-IDF (run in every new terminal)
+# Create combined alias for venv + ESP-IDF
+alias get_idf='source ~/stackchan-dev/venv/bin/activate && . ~/esp/esp-idf/export.sh'
+```
+
+### Starting a Session
+
+```bash
+# Linux/macOS - Activate venv and ESP-IDF
+source ~/stackchan-dev/venv/bin/activate
 . ~/esp/esp-idf/export.sh
 
-# Or add alias to ~/.bashrc or ~/.zshrc
-alias get_idf='. ~/esp/esp-idf/export.sh'
+# Or use alias (if configured)
+get_idf
+
+# Windows
+%USERPROFILE%\stackchan-dev\venv\Scripts\activate
+C:\Espressif\esp-idf\export.bat
+
+# Verify activation (should show venv paths)
+which python3  # Linux/macOS
+where python   # Windows
 ```
 
 ### Build and Flash
@@ -107,6 +148,38 @@ ls /dev/cu.*
 
 ## Troubleshooting Quick Fixes
 
+### Virtual Environment Issues
+
+#### "No module named 'esptool'" or similar
+```bash
+# Make sure virtual environment is activated
+source ~/stackchan-dev/venv/bin/activate  # Linux/macOS
+# You should see (venv) in your prompt
+
+# Verify Python is from venv
+which python3  # Should show venv path
+
+# If wrong Python, deactivate and reactivate
+deactivate
+source ~/stackchan-dev/venv/bin/activate
+```
+
+#### Python packages conflict
+```bash
+# Deactivate any active environment
+deactivate
+
+# Remove and recreate virtual environment
+rm -rf ~/stackchan-dev/venv
+cd ~/stackchan-dev
+python3 -m venv venv
+source venv/bin/activate
+
+# Reinstall ESP-IDF tools
+cd ~/esp/esp-idf
+./install.sh esp32s3
+```
+
 ### "Failed to connect"
 ```bash
 # Try slower baud rate
@@ -131,8 +204,12 @@ sudo usermod -a -G dialout $USER
 
 ### "ESP-IDF not found"
 ```bash
-# Activate ESP-IDF environment
+# Activate virtual environment first, then ESP-IDF
+source ~/stackchan-dev/venv/bin/activate
 . ~/esp/esp-idf/export.sh
+
+# Or use combined alias
+get_idf
 ```
 
 ### Build fails

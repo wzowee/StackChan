@@ -14,6 +14,32 @@ echo StackChan Firmware Flash Helper (Windows)
 echo ================================================
 echo.
 
+REM Check for Python virtual environment
+:check_venv
+if defined VIRTUAL_ENV (
+    echo [OK] Python virtual environment active: %VIRTUAL_ENV%
+) else (
+    echo [WARNING] No Python virtual environment detected
+    echo.
+    echo It's recommended to use a virtual environment for ESP-IDF.
+    echo This prevents conflicts with system Python packages.
+    echo.
+    echo To create and activate a virtual environment:
+    echo   mkdir %%USERPROFILE%%\stackchan-dev
+    echo   cd %%USERPROFILE%%\stackchan-dev
+    echo   python -m venv venv
+    echo   venv\Scripts\activate
+    echo.
+    echo Then reinstall ESP-IDF tools in the virtual environment.
+    echo See: %STACKCHAN_ROOT%\docs\FLASHING_GUIDE.md
+    echo.
+    set /p "continue=Continue without virtual environment? (y/N): "
+    if /i not "!continue!"=="y" (
+        exit /b 1
+    )
+)
+echo.
+
 REM Check for ESP-IDF
 :check_idf
 where idf.py >nul 2>&1

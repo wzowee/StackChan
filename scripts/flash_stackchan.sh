@@ -21,6 +21,35 @@ echo -e "${GREEN}StackChan Firmware Flash Helper${NC}"
 echo -e "${GREEN}================================================${NC}"
 echo ""
 
+# Function to check Python virtual environment
+check_python_venv() {
+    # Check if we're in a virtual environment
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        echo -e "${GREEN}✓ Python virtual environment active: $VIRTUAL_ENV${NC}"
+        return 0
+    else
+        echo -e "${YELLOW}⚠ No Python virtual environment detected${NC}"
+        echo ""
+        echo "It's recommended to use a virtual environment for ESP-IDF."
+        echo "This prevents conflicts with system Python packages."
+        echo ""
+        echo "To create and activate a virtual environment:"
+        echo -e "${BLUE}  mkdir -p ~/stackchan-dev"
+        echo -e "  cd ~/stackchan-dev"
+        echo -e "  python3 -m venv venv"
+        echo -e "  source venv/bin/activate${NC}"
+        echo ""
+        echo "Then reinstall ESP-IDF tools in the virtual environment."
+        echo "See: $STACKCHAN_ROOT/docs/FLASHING_GUIDE.md"
+        echo ""
+        read -p "Continue without virtual environment? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
+    fi
+}
+
 # Function to check if ESP-IDF is available
 check_idf() {
     if ! command -v idf.py &> /dev/null; then
@@ -218,6 +247,7 @@ show_menu() {
 # Main script execution
 main() {
     # Initial checks
+    check_python_venv
     check_idf
     fetch_dependencies
 

@@ -25,19 +25,78 @@ This guide will help you build and flash the StackChan firmware to your M5Stack 
 
 ## Installation Guide
 
-### Step 1: Install ESP-IDF
+### Step 1: Set Up Python Virtual Environment (Recommended)
 
-ESP-IDF is Espressif's official development framework for ESP32 chips.
+Using a Python virtual environment isolates ESP-IDF dependencies and prevents conflicts with system Python packages.
 
 #### Linux & macOS
 
 ```bash
-# Install prerequisites
+# Install prerequisites first
 # Ubuntu/Debian:
 sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
 
 # macOS:
 brew install cmake ninja dfu-util python3
+
+# Create a virtual environment for StackChan development
+mkdir -p ~/stackchan-dev
+cd ~/stackchan-dev
+python3 -m venv venv
+
+# Activate the virtual environment
+source venv/bin/activate
+
+# Verify Python is from virtual environment
+which python3  # Should show ~/stackchan-dev/venv/bin/python3
+```
+
+To activate the virtual environment in future sessions:
+
+```bash
+source ~/stackchan-dev/venv/bin/activate
+```
+
+**Pro Tip:** Add an alias to your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+alias stackchan-env='source ~/stackchan-dev/venv/bin/activate'
+```
+
+#### Windows
+
+```cmd
+REM Create a virtual environment
+mkdir %USERPROFILE%\stackchan-dev
+cd %USERPROFILE%\stackchan-dev
+python -m venv venv
+
+REM Activate the virtual environment
+venv\Scripts\activate
+
+REM Verify Python is from virtual environment
+where python
+```
+
+To activate in future sessions:
+
+```cmd
+%USERPROFILE%\stackchan-dev\venv\Scripts\activate
+```
+
+**Note:** The virtual environment must be activated before running ESP-IDF commands. You'll see `(venv)` in your terminal prompt when active.
+
+### Step 2: Install ESP-IDF
+
+ESP-IDF is Espressif's official development framework for ESP32 chips.
+
+**Important:** Make sure your Python virtual environment is activated before proceeding!
+
+#### Linux & macOS
+
+```bash
+# Ensure virtual environment is active
+source ~/stackchan-dev/venv/bin/activate  # Or use your alias: stackchan-env
 
 # Create directory for ESP-IDF
 mkdir -p ~/esp
@@ -47,7 +106,7 @@ cd ~/esp
 git clone -b v5.5.1 --recursive https://github.com/espressif/esp-idf.git
 cd esp-idf
 
-# Install ESP-IDF tools
+# Install ESP-IDF tools (this installs Python packages in your virtual environment)
 ./install.sh esp32s3
 
 # Set up environment variables (do this in every terminal session, or add to your shell profile)
@@ -57,32 +116,75 @@ cd esp-idf
 To make ESP-IDF available in every terminal session, add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-alias get_idf='. ~/esp/esp-idf/export.sh'
+alias get_idf='source ~/stackchan-dev/venv/bin/activate && . ~/esp/esp-idf/export.sh'
 ```
 
-Then run `get_idf` whenever you open a new terminal for StackChan development.
+Then run `get_idf` whenever you open a new terminal for StackChan development. This will activate both your Python virtual environment and ESP-IDF.
 
 #### Windows
 
-1. Download and run the [ESP-IDF Windows Installer](https://dl.espressif.com/dl/esp-idf/)
-2. Select ESP-IDF v5.5.1
-3. Choose installation directory (default: `C:\Espressif`)
-4. Select "ESP32-S3" in the chip selection
-5. Complete the installation
+**Option A: Using Windows Installer (Easier)**
 
-The installer creates a desktop shortcut "ESP-IDF Command Prompt" - use this for all firmware operations.
+1. Activate your virtual environment first:
+   ```cmd
+   %USERPROFILE%\stackchan-dev\venv\Scripts\activate
+   ```
 
-### Step 2: Verify ESP-IDF Installation
+2. Download and run the [ESP-IDF Windows Installer](https://dl.espressif.com/dl/esp-idf/)
+3. Select ESP-IDF v5.5.1
+4. Choose installation directory (default: `C:\Espressif`)
+5. Select "ESP32-S3" in the chip selection
+6. **Important:** When asked about Python, select "Use an existing Python installation" and point to your virtual environment Python
 
-```bash
-# Should show version 5.5.1
-idf.py --version
+The installer creates a desktop shortcut "ESP-IDF Command Prompt". Modify it to activate your virtual environment first.
 
-# Should show ESP32-S3 support
-idf.py --list-targets
+**Option B: Manual Installation**
+
+```cmd
+REM Activate virtual environment
+%USERPROFILE%\stackchan-dev\venv\Scripts\activate
+
+REM Create ESP directory
+mkdir %USERPROFILE%\esp
+cd %USERPROFILE%\esp
+
+REM Clone ESP-IDF
+git clone -b v5.5.1 --recursive https://github.com/espressif/esp-idf.git
+cd esp-idf
+
+REM Install ESP-IDF tools
+install.bat esp32s3
+
+REM Set up environment (do this in every session)
+export.bat
 ```
 
-### Step 3: Install USB Drivers
+**Note:** On Windows, you'll need to activate the virtual environment and run `export.bat` each time you open a new command prompt for StackChan development.
+
+### Step 3: Verify ESP-IDF Installation
+
+**Important:** Ensure your virtual environment is activated before running these commands!
+
+```bash
+# Check virtual environment is active (should show (venv) in prompt)
+# Linux/macOS:
+which python3  # Should be in venv directory
+
+# Windows:
+where python   # Should be in venv directory
+
+```bash
+# Verify ESP-IDF installation
+idf.py --version         # Should show version 5.5.1
+idf.py --list-targets    # Should show ESP32-S3 support
+
+# Verify Python packages
+pip list | grep esptool  # Should show esptool package
+```
+
+If you see errors about missing packages, make sure your virtual environment is activated.
+
+### Step 4: Install USB Drivers
 
 #### Linux
 
@@ -107,6 +209,23 @@ Drivers are typically installed automatically. If needed, download from:
 - [Silicon Labs CP210x Driver](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers)
 
 ## Building StackChan Firmware
+
+**Important:** Always activate your virtual environment and ESP-IDF before building!
+
+```bash
+# Linux/macOS
+source ~/stackchan-dev/venv/bin/activate  # Activate virtual environment
+. ~/esp/esp-idf/export.sh                 # Load ESP-IDF
+
+# Or use the alias if you set it up:
+get_idf
+
+# Windows
+%USERPROFILE%\stackchan-dev\venv\Scripts\activate
+C:\Espressif\esp-idf\export.bat
+```
+
+You should see `(venv)` in your prompt indicating the virtual environment is active.
 
 ### Step 1: Navigate to Firmware Directory
 
