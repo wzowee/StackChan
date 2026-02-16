@@ -22,6 +22,28 @@ The **factory firmware** comes with rich features, including vivid and cute faci
 
 ## Development
 
+### Flashing Firmware to CoreS3/CoreS3 SE
+
+Ready to build and flash StackChan firmware to your M5Stack CoreS3 or CoreS3 SE board?
+
+See the [Flashing Guide](docs/FLASHING_GUIDE.md) for complete instructions on setting up ESP-IDF and flashing firmware.
+
+Quick start:
+```bash
+# Use the automated flash helper
+./scripts/flash_stackchan.sh  # Linux/macOS
+# or
+scripts\flash_stackchan.bat   # Windows
+```
+
+Manual flashing:
+```bash
+cd firmware
+python3 ./fetch_repos.py  # Fetch dependencies (first time only)
+idf.py build              # Build firmware
+idf.py flash monitor      # Flash and monitor
+```
+
 ### Local Development with Emulator
 
 Want to develop and test StackChan UI changes without constantly flashing firmware to your device? Use the M5Stack LVGL Emulator for rapid local development.
